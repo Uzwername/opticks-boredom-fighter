@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App';
 import { createGlobalStyle } from 'styled-components';
 import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit';
-import rootReducer from './redux/reducers'
+import App from '@/components/App';
+import rootReducer from '@/redux/reducers'
 import './css/global.css';
 
 const GlobalStyles = createGlobalStyle`

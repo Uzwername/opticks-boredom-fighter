@@ -6,9 +6,9 @@ import {
   Link
 } from "react-router-dom";
 import { connect } from 'react-redux'
-import overlay from './../../redux/slices/overlay';
-import Dashboard from './../Dashboard';
-import ErrorPage from './../ErrorPage';
+import overlay from '@/redux/slices/overlay';
+import Dashboard from '@/components/Dashboard';
+import ErrorPage from '@/components/ErrorPage';
 
 const App = ({ dispatch }) => {
   return (
