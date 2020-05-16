@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import { createGlobalStyle } from 'styled-components';
 import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from "@material-ui/styles";
 //
 import App from '@/components/App';
 import rootReducer from '@/redux/reducers';
@@ -29,16 +31,29 @@ const GlobalStyles = createGlobalStyle`
     }
 `;
 
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            main: '#3CC588',
+        },
+        secondary: {
+            main: '#3F5FDE',
+        },
+    },
+});
+
 const store = configureStore({
     reducer: rootReducer
 });
 
 ReactDOM.render(
     <Provider store={store}>
-        <React.StrictMode>
-            <App />
-            <GlobalStyles />
-        </React.StrictMode>
+        <ThemeProvider theme={theme}>
+            <React.StrictMode>
+                <App />
+                <GlobalStyles />
+            </React.StrictMode>
+        </ThemeProvider>
     </Provider>,
     document.getElementById('root')
 );

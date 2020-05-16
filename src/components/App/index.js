@@ -5,8 +5,6 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import { connect } from 'react-redux';
-import overlay from '@/redux/slices/overlay';
 //
 import DashboardPage from '@/pages/Dashboard';
 import ErrorPage from '@/pages/Error';
@@ -18,18 +16,6 @@ const App = ({ dispatch }) => {
             <Link to="/">Home</Link>
             <br />
             <Link to="/about/">About</Link>
-            <br />
-            <button
-                onClick={() => {
-                    dispatch(overlay.actions.show())
-                    setTimeout(
-                        () => dispatch(overlay.actions.hide()), 
-                        3000
-                    )
-                }}
-            >
-                Show Overlay 3 seconds
-            </button>
         </nav>
         <Switch>
             <Route exact path="/">
@@ -49,4 +35,4 @@ const App = ({ dispatch }) => {
   );
 }
 
-export default connect()(App);
+export default React.memo(App);
