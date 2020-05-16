@@ -5,10 +5,11 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 import overlay from '@/redux/slices/overlay';
-import Dashboard from '@/components/Dashboard';
-import ErrorPage from '@/components/ErrorPage';
+//
+import DashboardPage from '@/pages/Dashboard';
+import ErrorPage from '@/pages/Error';
 
 const App = ({ dispatch }) => {
   return (
@@ -32,7 +33,7 @@ const App = ({ dispatch }) => {
         </nav>
         <Switch>
             <Route exact path="/">
-                <Dashboard />
+                 <DashboardPage />
             </Route>
             <Route path="/about/">
                 <h1>About us!</h1>

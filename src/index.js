@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom';
 import { createGlobalStyle } from 'styled-components';
 import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit';
+//
 import App from '@/components/App';
-import rootReducer from '@/redux/reducers'
+import rootReducer from '@/redux/reducers';
 import './css/global.css';
 
 const GlobalStyles = createGlobalStyle`
@@ -33,11 +34,11 @@ const store = configureStore({
 });
 
 ReactDOM.render(
-    <React.StrictMode>
-        <Provider store={store}>
+    <Provider store={store}>
+        <React.StrictMode>
             <App />
-        </Provider>
-        <GlobalStyles />
-    </React.StrictMode>,
+            <GlobalStyles />
+        </React.StrictMode>
+    </Provider>,
     document.getElementById('root')
 );
