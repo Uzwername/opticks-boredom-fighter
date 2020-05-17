@@ -15,6 +15,8 @@ export default createSlice({
                 state[action.payload.id] = action.payload;
             }
         },
-        remove: (state, action) => state[action.payload.id] = undefined
+        remove: (state, action) => {
+            delete state[action.payload.id];
+        }
     }
 });

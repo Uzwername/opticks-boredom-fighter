@@ -6,17 +6,29 @@ import Navbar from './component';
 import { makeAPICall } from '@/utils';
 import overlaySlice from '@/redux/slices/overlay';
 import modalSlice from '@/redux/slices/modal';
+import favoriteListSlice from '@/redux/slices/favoriteList';
 
 const NavbarContainer = ({
+    favoriteList,
     openModal,
     showOverlay,
-    hideOverlay
+    hideOverlay,
+    removeFromFavorites
 }) => {
     
     const [anchor, setAnchor] = useState(null);
+    const [isSlidePanelOpen, setIsSlidePanelOpen] = useState(false);
 
-    const setClickedAsAnchor = e => setAnchor(e.currentTarget);
-    const unsetAnchor = () => setAnchor(null);
+    // Dropdown handlers
+    const handleDropdownOpen = e => setAnchor(e.currentTarget);
+    const handleDropdownClose = () => setAnchor(null);
+    // Slide panels handler
+    const handleSlidePanelOpen = () => setIsSlidePanelOpen(true);
+    const handleSlidePanelClose = () => {
+        setIsSlidePanelOpen(false);
+        handleDropdownClose();
+    };
+    // Modal handlers
     const getRandomActivityAndOpenModal = () => {
 
         const handleError = (error) => {
@@ -35,19 +47,31 @@ const NavbarContainer = ({
 
     return (
         <Navbar
+            favoriteActivities={Object.values(favoriteList)}
+            onDiscardFromFavorites={removeFromFavorites}
             anchor={anchor}
-            handleOpen={setClickedAsAnchor}
-            handleClose={unsetAnchor}
+            openModal={getRandomActivityAndOpenModal}
             isDropdownOpen={Boolean(anchor)}
-            openModal = {getRandomActivityAndOpenModal}
+            onDropdownOpen={handleDropdownOpen}
+            onDropdownClose={handleDropdownClose}
+            isSlidePanelOpen={isSlidePanelOpen}
+            onSlidePanelOpen={handleSlidePanelOpen}
+            onSlidePanelClose={handleSlidePanelClose}
         />
     );
 };
 
 NavbarContainer.propTypes = {
+    favoriteList: PropTypes.object.isRequired,
     openModal: PropTypes.func.isRequired,
     showOverlay: PropTypes.func.isRequired,
     hideOverlay: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => {
+    return {
+        favoriteList: state.favoriteList
+    };
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -58,8 +82,9 @@ const mapDispatchToProps = (dispatch) => {
         })),
         showOverlay: () => dispatch(overlaySlice.actions.show()),
         hideOverlay: () => dispatch(overlaySlice.actions.hide()),
+        removeFromFavorites: (payload) => dispatch(favoriteListSlice.actions.remove(payload))
     };
 };
 
 
-export default connect(null, mapDispatchToProps)(NavbarContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(NavbarContainer);

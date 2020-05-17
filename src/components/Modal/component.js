@@ -22,13 +22,17 @@ const CloseIconContainer = styled.div`
     margin: 0 5px;
 `;
 
-const CapitalizedStrong = styled.strong`
-    text-transform: capitalize;
+const StrongDetail = styled.strong`
+    font-weight: 500;
+    color: #000;
 `;
 
 const MaybeHighlightedDialogConatiner = styled(Dialog)`
     &&.favored .MuiPaper-root {
         background-color: rgb(255, 226, 236);
+    }
+    && .MuiPaper-root {
+        transition: background-color .6s;
     }
 `;
 
@@ -83,16 +87,16 @@ const Modal = ({
                     </>
                     ) : (
                     <>
-                        Activity: <strong>{ content.activity }</strong>
+                        Activity: <StrongDetail>{ content.activity }</StrongDetail>
                         <br />
                         <br />
-                        Type:  <CapitalizedStrong>{ content.type }</CapitalizedStrong>
+                        Type:  <StrongDetail style={{textTransform: 'capitalize'}}>{ content.type }</StrongDetail>
                         <br />
-                        Price: <CapitalizedStrong>${ content.price }</CapitalizedStrong>
+                        Price: <StrongDetail>${ content.price }</StrongDetail>
                         <br />
-                        Participants num.: <CapitalizedStrong>{ content.participants }</CapitalizedStrong>
+                        Participants num.: <StrongDetail>{ content.participants }</StrongDetail>
                         <br />
-                        Accessibility: <CapitalizedStrong>{ content.accessibility }</CapitalizedStrong>
+                        Accessibility: <StrongDetail>{ content.accessibility }</StrongDetail>
                     </>
                 )}
                 </DialogContentText>

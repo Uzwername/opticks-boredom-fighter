@@ -10,8 +10,10 @@ import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
+import Drawer from '@material-ui/core/Drawer';
 //
 import Logo from '@/components/Logo';
+import FavoriteActivityCard from '@/components/FavoriteActivityCard';
 
 const LogoWrapper = styled.div`
     flex-grow: 1;
@@ -33,13 +35,48 @@ const IconButtonContainer = styled.div`
     padding: 0 5px;
 `;
 
+const DrawerContentBox = styled.div`
+    padding: 20px 5%;
+`;
+
+const FavoriteListContainer = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 1fr);
+    grid-gap: 25px;
+    @media (min-width: 500px) {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+`;
+
+const drawerStylesObject = {
+    style: {
+        width: '70%'
+    }
+};
+
 const Navbar = ({
+    favoriteActivities,
     anchor,
-    handleOpen,
-    handleClose,
+    onDropdownOpen,
+    onDropdownClose,
     isDropdownOpen,
-    openModal
+    openModal,
+    isSlidePanelOpen,
+    onSlidePanelOpen,
+    onSlidePanelClose,
+    onDiscardFromFavorites
 }) => {
+
+    const favoriteActivitiesList = favoriteActivities.map(
+        activity => (
+            <FavoriteActivityCard
+                key={activity.id}
+                activity={activity}
+                onDiscardFromFavorites={onDiscardFromFavorites}
+            />
+        )
+    );
+
     return (
         <>
             <AppBar
@@ -72,7 +109,7 @@ const Navbar = ({
                             title="Open dropdown"
                         >
                             <WhiteIconButton
-                                onClick={handleOpen}
+                                onClick={onDropdownOpen}
                                 edge="end"
                                 aria-label="Open dropdown"
                             >
@@ -97,22 +134,48 @@ const Navbar = ({
                             vertical: 'top',
                             horizontal: 'center',
                         }}
-                        onClose={handleClose}
+                        onClose={onDropdownClose}
                     >
-                        <MenuItem>Show Favorites</MenuItem>
+                        <MenuItem
+                            onClick={onSlidePanelOpen}
+                        >
+                            Show Favorites
+                        </MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>
+            <Drawer
+                anchor="right"
+                open={isSlidePanelOpen}
+                onClose={onSlidePanelClose}
+                PaperProps={drawerStylesObject}
+                SlideProps={drawerStylesObject}
+            >
+                <DrawerContentBox>
+                    <h1>
+                        Favorite Activities
+                    </h1>
+                    <br />
+                    <FavoriteListContainer>
+                        { favoriteActivitiesList }
+                    </FavoriteListContainer>
+                </DrawerContentBox>
+            </Drawer>
         </>
     );
 };
 
 Navbar.propTypes = {
+    favoriteActivities: PropTypes.array.isRequired,
+    onDiscardFromFavorites: PropTypes.func.isRequired,
     anchor: PropTypes.instanceOf(Element),
-    handleOpen: PropTypes.func.isRequired,
-    handleClose: PropTypes.func.isRequired,
-    isDropdownOpen: PropTypes.bool.isRequired,
     openModal: PropTypes.func.isRequired,
+    onDropdownOpen: PropTypes.func.isRequired,
+    onDropdownClose: PropTypes.func.isRequired,
+    isDropdownOpen: PropTypes.bool.isRequired,
+    isSlidePanelOpen: PropTypes.bool.isRequired,
+    onSlidePanelOpen: PropTypes.func.isRequired,
+    onSlidePanelClose: PropTypes.func.isRequired,
 };
 
 export default React.memo(Navbar);
