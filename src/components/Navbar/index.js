@@ -1,38 +1,21 @@
-import React from 'react';
-import styled from 'styled-components';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-//
-import Logo from '@/components/Logo';
+import React, {useState} from 'react';
+import Navbar from './component';
 
-const LogoWrapper = styled.div`
-    flex-grow: 1;
-`;
+const NavbarContainer = () => {
+    
+    const [anchor, setAnchor] = useState(null);
 
-const Navbar = () => {
+    const setClickedAsAnchor = e => setAnchor(e.currentTarget);
+    const unsetAnchor = () => setAnchor(null);
+
     return (
-        <AppBar
-            position="static"
-            color="secondary"
-        >
-            <Toolbar>
-                <LogoWrapper>
-                    <Logo />
-                </LogoWrapper>
-                <IconButton
-                    edge="end"
-                    aria-label="Open dropdown"
-                    style={{
-                        color: '#FFF'
-                    }}
-                >
-                    <ExpandMoreIcon />
-                </IconButton>
-            </Toolbar>
-        </AppBar>
+        <Navbar
+            anchor={anchor}
+            handleOpen={setClickedAsAnchor}
+            handleClose={unsetAnchor}
+            isDropdownOpen={Boolean(anchor)}
+        />
     );
 };
 
-export default React.memo(Navbar);
+export default NavbarContainer;
