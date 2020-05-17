@@ -7,7 +7,7 @@ const PageContainer = styled.main`
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 15px 2.5% 0;
+    padding: 2.5rem 2.5% 0;
 `;
 
 const PageHeader = styled.header`

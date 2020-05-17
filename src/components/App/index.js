@@ -2,21 +2,19 @@ import React from 'react';
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 //
 import DashboardPage from '@/pages/Dashboard';
 import ErrorPage from '@/pages/Error';
+import Navbar from '@/components/Navbar';
+import Overlay from '@/components/Overlay';
 
 const App = ({ dispatch }) => {
   return (
     <Router>
-        <nav>
-            <Link to="/">Home</Link>
-            <br />
-            <Link to="/about/">About</Link>
-        </nav>
+        <Overlay />
+        <Navbar />
         <Switch>
             <Route exact path="/">
                  <DashboardPage />

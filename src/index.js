@@ -2,9 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createGlobalStyle } from 'styled-components';
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from "@material-ui/styles";
+import { save, load } from "redux-localstorage-simple"
 //
 import App from '@/components/App';
 import rootReducer from '@/redux/reducers';
@@ -43,7 +44,18 @@ const theme = createMuiTheme({
 });
 
 const store = configureStore({
-    reducer: rootReducer
+    reducer: rootReducer,
+    middleware: [
+        ...getDefaultMiddleware(),
+        save({
+            states: ['favoriteList'],
+            namespace: 'redux_local_state',
+        })
+    ],
+    preloadedState: load({
+        states: ['favoriteList'],
+        namespace: 'redux_local_state',
+    }),
 });
 
 ReactDOM.render(

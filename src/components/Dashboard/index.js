@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 //
-import overlay from '@/redux/slices/overlay';
+import overlaySlice from '@/redux/slices/overlay';
+import favoriteListSlice from '@/redux/slices/favoriteList';
 import Dashboard from './component';
+
+const API_DOMAIN = 'https://bored-api.firebaseapp.com';
 
 const columns = [
     { title: 'Activity', field: 'activity' },
@@ -13,12 +16,11 @@ const columns = [
     { title: 'Accessibility', field: 'accessibility', type: 'numeric' }
 ];
 
-const getBoredData = async (errorCallback, successCallback, alwaysCallback=null, url='https://bored-api.firebaseapp.com/api/activity/list/10') => {
+const getBoredActivitiesList = async (errorCallback, successCallback, alwaysCallback=null, url=`${API_DOMAIN}/api/activity/list/10`) => {
     try {
         const res = await fetch(url);
         const json = await res.json();
 
-        localStorage.setItem('cachedBoredResults', JSON.stringify(json));
         successCallback(json);
     } catch {
         errorCallback({
@@ -31,29 +33,31 @@ const getBoredData = async (errorCallback, successCallback, alwaysCallback=null,
     if (alwaysCallback) alwaysCallback();
 }
 
-const DashboardController = ({ dispatch }) => {
+const DashboardController = ({ dispatch, favoriteList }) => {
+    // In a real project, we could also
+    // include cache expiration timestamp
+    // as last item in the array (or as a separate key)
+    const maybeFullListOfActivities = localStorage.getItem('full-list-of-bored-activities');
     const [fatalError, setFatalError] = useState({
         active: false,
     });
-    const [boredData, setBoredData] = useState(
-        localStorage.getItem('cachedBoredResults') ?
-            JSON.parse(localStorage.getItem('cachedBoredResults')) :
+    const [boredActivitiesList, setBoredActivitiesList] = useState(
+        maybeFullListOfActivities ?
+            JSON.parse(maybeFullListOfActivities) :
             []
     );
 
-    const closeOverlay = () => dispatch(overlay.actions.hide());
-
     const tableOptions = {
         pageSize: 10,
-        pageSizeOptions: boredData.length > 10 ? [10, 20, 30] : [],
+        pageSizeOptions: boredActivitiesList.length > 10 ? [10, 20, 30] : [],
         selection: true,
-        selectionProps: rowData => ({
-            disabled: rowData.id === '7526324',
+        selectionProps: row => ({
+            disabled: row.id in favoriteList
         }),
         rowStyle: rowData => (
-          (rowData.id === '7526324') ? {
-              backgroundColor: 'rgb(255, 226, 236)'
-          } : {} 
+            rowData.id in favoriteList ? {
+                backgroundColor: 'rgb(255, 226, 236)'
+            } : {} 
         )
     };
 
@@ -62,42 +66,79 @@ const DashboardController = ({ dispatch }) => {
             icon: 'add',
             tooltip: 'Show more activities',
             position: 'toolbar',
+            disabled: Boolean(maybeFullListOfActivities),
             onClick () {
-                
+                if (!maybeFullListOfActivities) {
+                    dispatch(overlaySlice.actions.show());
+                    const hideOverlay = () => dispatch(overlaySlice.actions.hide());
+                    const addNewDataToState = allActivities => {
+                        localStorage.setItem(
+                            'full-list-of-bored-activities',
+                            JSON.stringify(allActivities)
+                        );
+                        setBoredActivitiesList(allActivities);
+                    };
+
+                    // It rather makes sens to fetch all
+                    // activities at once so, we can both cache them
+                    // & avoid strange UX while having
+                    // to filter incoming activities on per X
+                    // random items basis.
+                    getBoredActivitiesList(
+                        setFatalError,
+                        addNewDataToState,
+                        hideOverlay,
+                        `${API_DOMAIN}/api/activity/list`
+                    );
+                }
             }
         },
         {
             icon: 'favorite_border',
             tooltip: 'Add to favorites',
             position: 'toolbarOnSelect',
-            onClick (event, rowData) {
-                console.log(rowData)
+            onClick: (event, rowsData) => {
+                const favored = rowsData.reduce(
+                    (favoredItems, row) => {
+                        if (row.id in favoriteList) return favoredItems;
+                        return favoredItems.concat({
+                            ...row,
+                            tableData: {...row.tableData}
+                        });
+                    },
+                    []
+                );
+                dispatch(favoriteListSlice.actions.add(favored));
             }
         },
         {
             icon: 'favorite_border',
             tooltip: 'Add to favorites',
             position: 'row',
-            onClick (event, rowData) {
-                console.log(rowData);
+            onClick: (event, row) => {
+                dispatch(favoriteListSlice.actions.add({
+                    ...row,
+                    tableData: {...row.tableData}
+                }));
             }
         }
     ];
-
+    
     useEffect(() => {
-        if (!boredData.length) {
-            console.log(overlay.actions.show());
-            dispatch(overlay.actions.show());
-            getBoredData(setFatalError, setBoredData, closeOverlay);
+        const closeOverlay = () => dispatch(overlaySlice.actions.hide());
+
+        if (!boredActivitiesList.length) {
+            dispatch(overlaySlice.actions.show());
+            getBoredActivitiesList(setFatalError, setBoredActivitiesList, closeOverlay);
         }
-    }, [boredData]);
+    }, [boredActivitiesList, dispatch]);
 
     return (
         <Dashboard
             title=""
             actions={tableActions}
             columns={columns}
-            data={boredData}
+            data={boredActivitiesList}
             options={tableOptions}
             fatalError={fatalError}
         />
@@ -108,4 +149,10 @@ DashboardController.propTypes = {
     dispatch: PropTypes.func.isRequired
 };
 
-export default connect()(DashboardController);
+const mapStateToProps = (state) => {
+    return {
+        favoriteList: state.favoriteList
+    };
+};
+
+export default connect(mapStateToProps)(DashboardController);
