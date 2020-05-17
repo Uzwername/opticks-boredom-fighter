@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import overlaySlice from '@/redux/slices/overlay';
 import favoriteListSlice from '@/redux/slices/favoriteList';
 import Dashboard from './component';
+import { makeAPICall } from '@/utils';
 
-const API_DOMAIN = 'https://bored-api.firebaseapp.com';
 
 const columns = [
     { title: 'Activity', field: 'activity' },
@@ -16,24 +16,12 @@ const columns = [
     { title: 'Accessibility', field: 'accessibility', type: 'numeric' }
 ];
 
-const getBoredActivitiesList = async (errorCallback, successCallback, alwaysCallback=null, url=`${API_DOMAIN}/api/activity/list/10`) => {
-    try {
-        const res = await fetch(url);
-        const json = await res.json();
-
-        successCallback(json);
-    } catch {
-        errorCallback({
-            active: true,
-            title: '500',
-            message: 'Please reload the page',
-        })
-    }
-    
-    if (alwaysCallback) alwaysCallback();
-}
-
-const DashboardController = ({ dispatch, favoriteList }) => {
+const DashboardController = ({
+    favoriteList,
+    showOverlay,
+    hideOverlay,
+    addFavorite
+}) => {
     // In a real project, we could also
     // include cache expiration timestamp
     // as last item in the array (or as a separate key)
@@ -69,8 +57,7 @@ const DashboardController = ({ dispatch, favoriteList }) => {
             disabled: Boolean(maybeFullListOfActivities),
             onClick () {
                 if (!maybeFullListOfActivities) {
-                    dispatch(overlaySlice.actions.show());
-                    const hideOverlay = () => dispatch(overlaySlice.actions.hide());
+                    showOverlay();
                     const addNewDataToState = allActivities => {
                         localStorage.setItem(
                             'full-list-of-bored-activities',
@@ -84,11 +71,11 @@ const DashboardController = ({ dispatch, favoriteList }) => {
                     // & avoid strange UX while having
                     // to filter incoming activities on per X
                     // random items basis.
-                    getBoredActivitiesList(
+                    makeAPICall(
                         setFatalError,
                         addNewDataToState,
                         hideOverlay,
-                        `${API_DOMAIN}/api/activity/list`
+                        '/api/activity/list'
                     );
                 }
             }
@@ -108,7 +95,7 @@ const DashboardController = ({ dispatch, favoriteList }) => {
                     },
                     []
                 );
-                dispatch(favoriteListSlice.actions.add(favored));
+                addFavorite(favored);
             }
         },
         {
@@ -116,22 +103,20 @@ const DashboardController = ({ dispatch, favoriteList }) => {
             tooltip: 'Add to favorites',
             position: 'row',
             onClick: (event, row) => {
-                dispatch(favoriteListSlice.actions.add({
+                addFavorite({
                     ...row,
                     tableData: {...row.tableData}
-                }));
+                });
             }
         }
     ];
     
     useEffect(() => {
-        const closeOverlay = () => dispatch(overlaySlice.actions.hide());
-
         if (!boredActivitiesList.length) {
-            dispatch(overlaySlice.actions.show());
-            getBoredActivitiesList(setFatalError, setBoredActivitiesList, closeOverlay);
+            showOverlay();
+            makeAPICall(setFatalError, setBoredActivitiesList, hideOverlay);
         }
-    }, [boredActivitiesList, dispatch]);
+    }, [boredActivitiesList, showOverlay, hideOverlay]);
 
     return (
         <Dashboard
@@ -146,7 +131,12 @@ const DashboardController = ({ dispatch, favoriteList }) => {
 };
 
 DashboardController.propTypes = {
-    dispatch: PropTypes.func.isRequired
+    favoriteList: PropTypes.shape([
+        PropTypes.object
+    ]).isRequired,
+    showOverlay: PropTypes.func.isRequired,
+    hideOverlay: PropTypes.func.isRequired,
+    addFavorite: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => {
@@ -155,4 +145,12 @@ const mapStateToProps = (state) => {
     };
 };
 
-export default connect(mapStateToProps)(DashboardController);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        showOverlay: () => dispatch(overlaySlice.actions.show()),
+        hideOverlay: () => dispatch(overlaySlice.actions.hide()),
+        addFavorite: (payload) => dispatch(favoriteListSlice.actions.add(payload))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardController);

@@ -9,11 +9,13 @@ import DashboardPage from '@/pages/Dashboard';
 import ErrorPage from '@/pages/Error';
 import Navbar from '@/components/Navbar';
 import Overlay from '@/components/Overlay';
+import Modal from '@/components/Modal';
 
-const App = ({ dispatch }) => {
+const App = () => {
   return (
     <Router>
         <Overlay />
+        <Modal />
         <Navbar />
         <Switch>
             <Route exact path="/">

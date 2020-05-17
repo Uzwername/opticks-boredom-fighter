@@ -13,7 +13,7 @@ const OverlayContainer = styled.div`
     height: 100%;
     top: 0;
     left: 0;
-    z-index: 1200;
+    z-index: 1300;
     background-color: rgba(0, 0, 0, .5);
     color: #FFF;
     transition: visibility .4s;
@@ -36,6 +36,12 @@ const IconWrapper = styled.div`
     animation: 1.5s ${rotate} linear infinite;
 `;
 
+const LargeLoopIcon = styled(LoopIcon)`
+    && {
+        font-size: 5rem;
+    }
+`
+
 const Overlay = ({ isShown }) => {
     return (
         <OverlayContainer
@@ -44,9 +50,7 @@ const Overlay = ({ isShown }) => {
             isShown={ isShown }
         >
             <IconWrapper>
-                <LoopIcon
-                    style={{fontSize: '5rem'}}
-                />
+                <LargeLoopIcon />
             </IconWrapper>
         </OverlayContainer>
     );
